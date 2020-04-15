@@ -202,7 +202,7 @@ github.com/dylanmei/winrmtest
 github.com/exoscale/egoscale
 # github.com/fatih/camelcase v1.0.0
 github.com/fatih/camelcase
-# github.com/fatih/color v1.7.0
+# github.com/fatih/color v1.9.0
 github.com/fatih/color
 # github.com/fatih/structtag v1.0.0
 github.com/fatih/structtag
@@ -293,17 +293,17 @@ github.com/gophercloud/gophercloud/openstack/utils
 github.com/gophercloud/gophercloud/pagination
 # github.com/gophercloud/utils v0.0.0-20190124192022-a5c25e7a53a6
 github.com/gophercloud/utils/openstack/clientconfig
-# github.com/gorilla/websocket v0.0.0-20170319172727-a91eba7f9777
+# github.com/gorilla/websocket v1.4.0
 github.com/gorilla/websocket
 # github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 github.com/grpc-ecosystem/go-grpc-middleware
-# github.com/hashicorp/consul v1.4.0
+# github.com/hashicorp/consul/api v1.4.0
 github.com/hashicorp/consul/api
 # github.com/hashicorp/errwrap v1.0.0
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-checkpoint v0.0.0-20171009173528-1545e56e46de
 github.com/hashicorp/go-checkpoint
-# github.com/hashicorp/go-cleanhttp v0.5.0
+# github.com/hashicorp/go-cleanhttp v0.5.1
 github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-cty-funcs/cidr v0.0.0-20200203151509-c92509f48b18
 github.com/hashicorp/go-cty-funcs/cidr
@@ -320,6 +320,8 @@ github.com/hashicorp/go-getter/helper/url
 # github.com/hashicorp/go-getter/v2 v2.0.0-20200318090939-0b1d527d9793
 github.com/hashicorp/go-getter/v2
 github.com/hashicorp/go-getter/v2/helper/url
+# github.com/hashicorp/go-hclog v0.12.0
+github.com/hashicorp/go-hclog
 # github.com/hashicorp/go-immutable-radix v1.0.0
 github.com/hashicorp/go-immutable-radix
 # github.com/hashicorp/go-multierror v1.0.0
@@ -328,9 +330,9 @@ github.com/hashicorp/go-multierror
 github.com/hashicorp/go-oracle-terraform/client
 github.com/hashicorp/go-oracle-terraform/compute
 github.com/hashicorp/go-oracle-terraform/opc
-# github.com/hashicorp/go-retryablehttp v0.5.2
+# github.com/hashicorp/go-retryablehttp v0.5.4
 github.com/hashicorp/go-retryablehttp
-# github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90
+# github.com/hashicorp/go-rootcerts v1.0.2
 github.com/hashicorp/go-rootcerts
 # github.com/hashicorp/go-safetemp v1.0.0
 github.com/hashicorp/go-safetemp
@@ -396,7 +398,7 @@ github.com/jdcloud-api/jdcloud-sdk-go/services/vpc/models
 github.com/jehiah/go-strftime
 # github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 github.com/jmespath/go-jmespath
-# github.com/joyent/triton-go v0.0.0-20180116165742-545edbe0d564
+# github.com/joyent/triton-go v1.7.1-0.20200415201553-aa72615bac48
 github.com/joyent/triton-go
 github.com/joyent/triton-go/authentication
 github.com/joyent/triton-go/client
@@ -413,17 +415,15 @@ github.com/jstemmer/go-junit-report/parser
 github.com/kardianos/osext
 # github.com/kennygrant/sanitize v1.2.4
 github.com/kennygrant/sanitize
-# github.com/klauspost/compress v0.0.0-20160131094358-f86d2e6d8a77
+# github.com/klauspost/compress v1.7.1
 github.com/klauspost/compress/flate
-# github.com/klauspost/cpuid v0.0.0-20160106104451-349c67577817
+# github.com/klauspost/cpuid v1.2.1
 github.com/klauspost/cpuid
-# github.com/klauspost/crc32 v0.0.0-20160114101742-999f3125931f
-github.com/klauspost/crc32
-# github.com/klauspost/pgzip v0.0.0-20151221113845-47f36e165cec
+# github.com/klauspost/pgzip v1.2.1
 github.com/klauspost/pgzip
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+# github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
-# github.com/kr/fs v0.0.0-20131111012553-2788f0dbd169
+# github.com/kr/fs v0.1.0
 github.com/kr/fs
 # github.com/linode/linodego v0.7.1
 github.com/linode/linodego
@@ -435,9 +435,9 @@ github.com/masterzen/simplexml/dom
 # github.com/masterzen/winrm v0.0.0-20180224160350-7e40f93ae939
 github.com/masterzen/winrm
 github.com/masterzen/winrm/soap
-# github.com/mattn/go-colorable v0.0.9
+# github.com/mattn/go-colorable v0.1.4
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.10
+# github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.4
 github.com/mattn/go-runewidth
@@ -454,11 +454,11 @@ github.com/mitchellh/go-homedir
 github.com/mitchellh/go-testing-interface
 # github.com/mitchellh/go-vnc v0.0.0-20150629162542-723ed9867aed
 github.com/mitchellh/go-vnc
-# github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
+# github.com/mitchellh/go-wordwrap v1.0.0
 github.com/mitchellh/go-wordwrap
 # github.com/mitchellh/iochan v1.0.0
 github.com/mitchellh/iochan
-# github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc
+# github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
 # github.com/mitchellh/panicwrap v0.0.0-20170106182340-fce601fe5557
 github.com/mitchellh/panicwrap
@@ -476,7 +476,7 @@ github.com/moul/anonuuid
 github.com/moul/gotty-client
 # github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 github.com/nu7hatch/gouuid
-# github.com/olekukonko/tablewriter v0.0.0-20180105111133-96aac992fc8b
+# github.com/olekukonko/tablewriter v0.0.0-20180130162743-b8a9be070da4
 github.com/olekukonko/tablewriter
 # github.com/oracle/oci-go-sdk v1.8.0
 github.com/oracle/oci-go-sdk/common
@@ -492,7 +492,7 @@ github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
-# github.com/pkg/sftp v0.0.0-20160118190721-e84cc8c755ca
+# github.com/pkg/sftp v1.10.0
 github.com/pkg/sftp
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -555,7 +555,7 @@ github.com/ucloud/ucloud-sdk-go/ucloud/response
 github.com/ucloud/ucloud-sdk-go/ucloud/version
 # github.com/ufilesdk-dev/ufile-gosdk v0.0.0-20190830075812-b4dbc4ef43a6
 github.com/ufilesdk-dev/ufile-gosdk
-# github.com/ugorji/go v0.0.0-20151218193438-646ae4a518c1
+# github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # github.com/ulikunitz/xz v0.5.5
 github.com/ulikunitz/xz
@@ -836,7 +836,7 @@ google.golang.org/grpc/tap
 gopkg.in/ini.v1
 # gopkg.in/resty.v1 v1.12.0
 gopkg.in/resty.v1
-# gopkg.in/yaml.v2 v2.2.7
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
 # honnef.co/go/tools v0.0.1-2019.2.3
 honnef.co/go/tools/arg

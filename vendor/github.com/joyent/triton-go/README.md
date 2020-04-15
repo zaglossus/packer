@@ -1,9 +1,18 @@
 # triton-go
 
-`triton-go` is an idiomatic library exposing a client SDK for Go applications
-using Joyent's Triton Compute and Storage (Manta) APIs.
+`triton-go` is a client SDK for Go applications using Joyent's Triton Compute
+and Object Storage (Manta) APIs.
 
-[![Build Status](https://travis-ci.org/joyent/triton-go.svg?branch=master)](https://travis-ci.org/joyent/triton-go) [![Go Report Card](https://goreportcard.com/badge/github.com/joyent/triton-go)](https://goreportcard.com/report/github.com/joyent/triton-go)
+The Triton Go SDK is used in the following open source projects.
+
+- [Consul](https://www.consul.io/docs/agent/cloud-auto-join.html#joyent-triton)
+- [Packer](http://github.com/hashicorp/packer)
+- [Vault](http://github.com/hashicorp/vault)
+- [Terraform](http://github.com/hashicorp/terraform)
+- [Terraform Triton Provider](https://github.com/terraform-providers/terraform-provider-triton)
+- [Docker Machine](https://github.com/joyent/docker-machine-driver-triton)
+- [Triton Kubernetes](https://github.com/joyent/triton-kubernetes)
+- [HashiCorp go-discover](https://github.com/hashicorp/go-discover)
 
 ## Usage
 
@@ -38,7 +47,7 @@ ssh-keygen -Emd5 -lf ~/.ssh/id_rsa.pub | cut -d " " -f 2 | sed 's/MD5://'
 ```
 
 Each top level package, `account`, `compute`, `identity`, `network`, all have
-their own seperate client. In order to initialize a package client, simply pass
+their own separate client. In order to initialize a package client, simply pass
 the global `triton.ClientConfig` struct into the client's constructor function.
 
 ```go
@@ -73,10 +82,16 @@ if err != nil {
 ## Error Handling
 
 If an error is returned by the HTTP API, the `error` returned from the function
-will contain an instance of `compute.TritonError` in the chain. Error wrapping
-is performed using the [errwrap][7] library from HashiCorp.
+will contain an instance of `errors.APIError` in the chain. Error wrapping
+is performed using the [pkg/errors][7] library.
 
 ## Acceptance Tests
+
+_**NOTE:** The tests are not currently well-structured, and depend on many
+hard-coded specifics of the Joyent Public Cloud (JPC) which is being shut down
+in November 2019.  It is likely not possible to run the test suite against a
+local Triton installation at this time, though that is definitely the intended
+test suite target environment for future development._
 
 Acceptance Tests run directly against the Triton API, so you will need either a
 local installation of Triton or an account with Joyent's Public Cloud offering
@@ -95,7 +110,7 @@ set:
 Additionally, you may set `TRITON_KEY_MATERIAL` to the contents of an unencrypted
 private key. If this is set, the PrivateKeySigner (see above) will be used - if
 not the SSHAgentSigner will be used. You can also set `TRITON_USER` to run the tests
-against an account other than the main Triton account
+against an account other than the main Triton account.
 
 ### Example Run
 
@@ -235,4 +250,4 @@ func main() {
 [4]: https://github.com/joyent/node-http-signature/blob/master/http_signing.md
 [5]: https://godoc.org/github.com/joyent/triton-go/authentication
 [6]: https://godoc.org/github.com/joyent/triton-go/authentication
-[7]: https://github.com/hashicorp/go-errwrap
+[7]: https://github.com/pkg/errors

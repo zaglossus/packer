@@ -65,12 +65,11 @@ require (
 	github.com/gophercloud/gophercloud v0.2.0
 	github.com/gophercloud/utils v0.0.0-20190124192022-a5c25e7a53a6
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
-	github.com/gorilla/websocket v0.0.0-20170319172727-a91eba7f9777 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
-	github.com/hashicorp/consul v1.4.0
+	github.com/hashicorp/consul/api v1.4.0
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-checkpoint v0.0.0-20171009173528-1545e56e46de
-	github.com/hashicorp/go-cleanhttp v0.5.0
+	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-cty-funcs/cidr v0.0.0-20200203151509-c92509f48b18
 	github.com/hashicorp/go-cty-funcs/crypto v0.0.0-20200124154056-476681ae9d62
 	github.com/hashicorp/go-cty-funcs/encoding v0.0.0-20200203151509-c92509f48b18
@@ -80,8 +79,6 @@ require (
 	github.com/hashicorp/go-getter/v2 v2.0.0-20200318090939-0b1d527d9793
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-oracle-terraform v0.0.0-20181016190316-007121241b79
-	github.com/hashicorp/go-retryablehttp v0.5.2 // indirect
-	github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90 // indirect
 	github.com/hashicorp/go-uuid v1.0.2
 	github.com/hashicorp/go-version v1.2.0
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
@@ -94,22 +91,18 @@ require (
 	github.com/hyperonecom/h1-client-go v0.0.0-20191203060043-b46280e4c4a4
 	github.com/jdcloud-api/jdcloud-sdk-go v1.9.1-0.20190605102154-3d81a50ca961
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869
-	github.com/joyent/triton-go v0.0.0-20180116165742-545edbe0d564
+	github.com/joyent/triton-go v1.7.1-0.20200415201553-aa72615bac48
 	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/jtolds/gls v4.2.1+incompatible // indirect
 	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/klauspost/compress v0.0.0-20160131094358-f86d2e6d8a77 // indirect
-	github.com/klauspost/cpuid v0.0.0-20160106104451-349c67577817 // indirect
 	github.com/klauspost/crc32 v0.0.0-20160114101742-999f3125931f // indirect
-	github.com/klauspost/pgzip v0.0.0-20151221113845-47f36e165cec
-	github.com/kr/fs v0.0.0-20131111012553-2788f0dbd169 // indirect
+	github.com/klauspost/pgzip v1.2.1
 	github.com/linode/linodego v0.7.1
 	github.com/masterzen/azure-sdk-for-go v0.0.0-20161014135628-ee4f0065d00c // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/masterzen/winrm v0.0.0-20180224160350-7e40f93ae939
-	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-tty v0.0.0-20191112051231-74040eebce08
 	github.com/miekg/dns v1.1.1 // indirect
 	github.com/mitchellh/cli v1.0.0
@@ -117,7 +110,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-vnc v0.0.0-20150629162542-723ed9867aed
 	github.com/mitchellh/iochan v1.0.0
-	github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mitchellh/panicwrap v0.0.0-20170106182340-fce601fe5557
 	github.com/mitchellh/prefixedio v0.0.0-20151214002211-6e6954073784
 	github.com/mitchellh/reflectwalk v1.0.0
@@ -126,13 +119,13 @@ require (
 	github.com/moul/anonuuid v0.0.0-20160222162117-609b752a95ef // indirect
 	github.com/moul/gotty-client v0.0.0-20180327180212-b26a57ebc215 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
-	github.com/olekukonko/tablewriter v0.0.0-20180105111133-96aac992fc8b
+	github.com/olekukonko/tablewriter v0.0.0-20180130162743-b8a9be070da4
 	github.com/oracle/oci-go-sdk v1.8.0
 	github.com/outscale/osc-go v0.0.1
 	github.com/packer-community/winrmcp v0.0.0-20180921204643-0fd363d6159a
 	github.com/pierrec/lz4 v2.0.5+incompatible
 	github.com/pkg/errors v0.8.1
-	github.com/pkg/sftp v0.0.0-20160118190721-e84cc8c755ca
+	github.com/pkg/sftp v1.10.0
 	github.com/posener/complete v1.1.1
 	github.com/profitbricks/profitbricks-sdk-go v4.0.2+incompatible
 	github.com/renstrom/fuzzysearch v0.0.0-20160331204855-2d205ac6ec17 // indirect
@@ -150,7 +143,8 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go v3.0.155+incompatible
 	github.com/ucloud/ucloud-sdk-go v0.12.0
 	github.com/ufilesdk-dev/ufile-gosdk v0.0.0-20190830075812-b4dbc4ef43a6
-	github.com/ugorji/go v0.0.0-20151218193438-646ae4a518c1
+	github.com/ugorji/go v1.1.7 // indirect
+	github.com/ugorji/go/codec v1.1.7
 	github.com/ulikunitz/xz v0.5.5
 	github.com/vmware/govmomi v0.21.0
 	github.com/xanzy/go-cloudstack v0.0.0-20190526095453-42f262b63ed0
@@ -177,7 +171,6 @@ require (
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/jarcoal/httpmock.v1 v1.0.0-20181117152235-275e9df93516 // indirect
 	gopkg.in/resty.v1 v1.12.0 // indirect
-	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018, Joyent, Inc. All rights reserved.
+// Copyright 2019 Joyent, Inc.
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,12 +10,16 @@ package compute
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -50,28 +54,34 @@ type InstanceVolume struct {
 	Mountpoint string `json:"mountpoint,omitempty"`
 }
 
+type NetworkObject struct {
+	IPv4UUID string   `json:"ipv4_uuid"`
+	IPv4IPs  []string `json:"ipv4_ips,omitempty"`
+}
+
 type Instance struct {
-	ID              string                 `json:"id"`
-	Name            string                 `json:"name"`
-	Type            string                 `json:"type"`
-	Brand           string                 `json:"brand"`
-	State           string                 `json:"state"`
-	Image           string                 `json:"image"`
-	Memory          int                    `json:"memory"`
-	Disk            int                    `json:"disk"`
-	Metadata        map[string]string      `json:"metadata"`
-	Tags            map[string]interface{} `json:"tags"`
-	Created         time.Time              `json:"created"`
-	Updated         time.Time              `json:"updated"`
-	Docker          bool                   `json:"docker"`
-	IPs             []string               `json:"ips"`
-	Networks        []string               `json:"networks"`
-	PrimaryIP       string                 `json:"primaryIp"`
-	FirewallEnabled bool                   `json:"firewall_enabled"`
-	ComputeNode     string                 `json:"compute_node"`
-	Package         string                 `json:"package"`
-	DomainNames     []string               `json:"dns_names"`
-	CNS             InstanceCNS
+	ID                 string                 `json:"id"`
+	Name               string                 `json:"name"`
+	Type               string                 `json:"type"`
+	Brand              string                 `json:"brand"`
+	State              string                 `json:"state"`
+	Image              string                 `json:"image"`
+	Memory             int                    `json:"memory"`
+	Disk               int                    `json:"disk"`
+	Metadata           map[string]string      `json:"metadata"`
+	Tags               map[string]interface{} `json:"tags"`
+	Created            time.Time              `json:"created"`
+	Updated            time.Time              `json:"updated"`
+	Docker             bool                   `json:"docker"`
+	IPs                []string               `json:"ips"`
+	Networks           []string               `json:"networks"`
+	PrimaryIP          string                 `json:"primaryIp"`
+	FirewallEnabled    bool                   `json:"firewall_enabled"`
+	ComputeNode        string                 `json:"compute_node"`
+	Package            string                 `json:"package"`
+	DomainNames        []string               `json:"dns_names"`
+	DeletionProtection bool                   `json:"deletion_protection"`
+	CNS                InstanceCNS
 }
 
 // _Instance is a private facade over Instance that handles the necessary API
@@ -103,6 +113,38 @@ func (gmi *GetInstanceInput) Validate() error {
 	return nil
 }
 
+func (c *InstancesClient) Count(ctx context.Context, input *ListInstancesInput) (int, error) {
+	fullPath := path.Join("/", c.client.AccountName, "machines")
+
+	reqInputs := client.RequestInput{
+		Method: http.MethodHead,
+		Path:   fullPath,
+		Query:  buildQueryFilter(input),
+	}
+
+	response, err := c.client.ExecuteRequestRaw(ctx, reqInputs)
+	if err != nil {
+		return -1, pkgerrors.Wrap(err, "unable to get machines count")
+	}
+
+	if response == nil {
+		return -1, pkgerrors.New("request to get machines count has empty response")
+	}
+	defer response.Body.Close()
+
+	var result int
+
+	if count := response.Header.Get("X-Resource-Count"); count != "" {
+		value, err := strconv.Atoi(count)
+		if err != nil {
+			return -1, pkgerrors.Wrap(err, "unable to decode machines count response")
+		}
+		result = value
+	}
+
+	return result, nil
+}
+
 func (c *InstancesClient) Get(ctx context.Context, input *GetInstanceInput) (*Instance, error) {
 	if err := input.Validate(); err != nil {
 		return nil, pkgerrors.Wrap(err, "unable to get machine")
@@ -110,30 +152,30 @@ func (c *InstancesClient) Get(ctx context.Context, input *GetInstanceInput) (*In
 
 	fullPath := path.Join("/", c.client.AccountName, "machines", input.ID)
 	reqInputs := client.RequestInput{
-		Method: http.MethodGet,
-		Path:   fullPath,
+		Method:       http.MethodGet,
+		Path:         fullPath,
+		PreserveGone: true,
 	}
-	response, err := c.client.ExecuteRequestRaw(ctx, reqInputs)
+	response, reqErr := c.client.ExecuteRequestRaw(ctx, reqInputs)
 	if response == nil {
-		return nil, pkgerrors.Wrap(err, "unable to get machine")
+		return nil, pkgerrors.Wrap(reqErr, "unable to get machine")
 	}
 	if response.Body != nil {
 		defer response.Body.Close()
 	}
-	if response.StatusCode == http.StatusNotFound || response.StatusCode == http.StatusGone {
-		return nil, &errors.APIError{
-			StatusCode: response.StatusCode,
-			Code:       "ResourceNotFound",
+	if reqErr != nil {
+		reqErr = pkgerrors.Wrap(reqErr, "unable to get machine")
+
+		// If this is not a HTTP 410 Gone error, return it immediately to the caller.  Otherwise, we'll return it alongside the instance below.
+		if response.StatusCode != http.StatusGone {
+			return nil, reqErr
 		}
-	}
-	if err != nil {
-		return nil, pkgerrors.Wrap(err, "unable to get machine")
 	}
 
 	var result *_Instance
 	decoder := json.NewDecoder(response.Body)
-	if err = decoder.Decode(&result); err != nil {
-		return nil, pkgerrors.Wrap(err, "unable to decode get machine response")
+	if err := decoder.Decode(&result); err != nil {
+		return nil, pkgerrors.Wrap(err, "unable to parse JSON in get machine response")
 	}
 
 	native, err := result.toNative()
@@ -141,7 +183,8 @@ func (c *InstancesClient) Get(ctx context.Context, input *GetInstanceInput) (*In
 		return nil, pkgerrors.Wrap(err, "unable to decode get machine response")
 	}
 
-	return native, nil
+	// To remain compatible with the existing interface, we'll return both an error and an instance object in some cases; e.g., for HTTP 410 Gone responses for deleted instances.
+	return native, reqErr
 }
 
 type ListInstancesInput struct {
@@ -153,15 +196,13 @@ type ListInstancesInput struct {
 	Memory      uint16
 	Limit       uint16
 	Offset      uint16
-	Tags        []string // query by arbitrary tags prefixed with "tag."
+	Tags        map[string]interface{} // query by arbitrary tags prefixed with "tag."
 	Tombstone   bool
 	Docker      bool
 	Credentials bool
 }
 
-func (c *InstancesClient) List(ctx context.Context, input *ListInstancesInput) ([]*Instance, error) {
-	fullPath := path.Join("/", c.client.AccountName, "machines")
-
+func buildQueryFilter(input *ListInstancesInput) *url.Values {
 	query := &url.Values{}
 	if input.Brand != "" {
 		query.Set("brand", input.Brand)
@@ -175,10 +216,10 @@ func (c *InstancesClient) List(ctx context.Context, input *ListInstancesInput) (
 	if input.State != "" {
 		query.Set("state", input.State)
 	}
-	if input.Memory >= 1 && input.Memory <= 1000 {
+	if input.Memory >= 1 {
 		query.Set("memory", fmt.Sprintf("%d", input.Memory))
 	}
-	if input.Limit >= 1 {
+	if input.Limit >= 1 && input.Limit <= 1000 {
 		query.Set("limit", fmt.Sprintf("%d", input.Limit))
 	}
 	if input.Offset >= 0 {
@@ -193,13 +234,27 @@ func (c *InstancesClient) List(ctx context.Context, input *ListInstancesInput) (
 	if input.Credentials {
 		query.Set("credentials", "true")
 	}
+	if input.Tags != nil {
+		for k, v := range input.Tags {
+			query.Set(fmt.Sprintf("tag.%s", k), v.(string))
+		}
+	}
+
+	return query
+}
+
+func (c *InstancesClient) List(ctx context.Context, input *ListInstancesInput) ([]*Instance, error) {
+	fullPath := path.Join("/", c.client.AccountName, "machines")
 
 	reqInputs := client.RequestInput{
 		Method: http.MethodGet,
 		Path:   fullPath,
-		Query:  query,
+		Query:  buildQueryFilter(input),
 	}
 	respReader, err := c.client.ExecuteRequest(ctx, reqInputs)
+	if respReader != nil {
+		defer respReader.Close()
+	}
 	if err != nil {
 		return nil, pkgerrors.Wrap(err, "unable to list machines")
 	}
@@ -224,18 +279,26 @@ func (c *InstancesClient) List(ctx context.Context, input *ListInstancesInput) (
 
 type CreateInstanceInput struct {
 	Name            string
+	NamePrefix      string
 	Package         string
 	Image           string
 	Networks        []string
+	NetworkObjects  []NetworkObject
 	Affinity        []string
 	LocalityStrict  bool
 	LocalityNear    []string
 	LocalityFar     []string
 	Metadata        map[string]string
-	Tags            map[string]string
-	FirewallEnabled bool
+	Tags            map[string]string //
+	FirewallEnabled bool              //
 	CNS             InstanceCNS
 	Volumes         []InstanceVolume
+}
+
+func buildInstanceName(namePrefix string) string {
+	h := sha1.New()
+	io.WriteString(h, namePrefix+time.Now().UTC().String())
+	return fmt.Sprintf("%s%s", namePrefix, hex.EncodeToString(h.Sum(nil))[:8])
 }
 
 func (input *CreateInstanceInput) toAPI() (map[string]interface{}, error) {
@@ -246,6 +309,8 @@ func (input *CreateInstanceInput) toAPI() (map[string]interface{}, error) {
 
 	if input.Name != "" {
 		result["name"] = input.Name
+	} else if input.NamePrefix != "" {
+		result["name"] = buildInstanceName(input.NamePrefix)
 	}
 
 	if input.Package != "" {
@@ -256,8 +321,31 @@ func (input *CreateInstanceInput) toAPI() (map[string]interface{}, error) {
 		result["image"] = input.Image
 	}
 
-	if len(input.Networks) > 0 {
-		result["networks"] = input.Networks
+	// If we are passed []string from input.Networks that do not conflict with networks provided by NetworkObjects, add them to the request sent to CloudAPI
+	var networks []NetworkObject
+
+	if len(input.NetworkObjects) > 0 {
+		networks = append(networks, input.NetworkObjects...)
+	}
+
+	for _, netuuid := range input.Networks {
+		found := false
+
+		for _, net := range networks {
+			if net.IPv4UUID == netuuid {
+				found = true
+			}
+		}
+
+		if !found {
+			networks = append(networks, NetworkObject{
+				IPv4UUID: netuuid,
+			})
+		}
+	}
+
+	if len(networks) > 0 {
+		result["networks"] = networks
 	}
 
 	if len(input.Volumes) > 0 {
@@ -271,7 +359,7 @@ func (input *CreateInstanceInput) toAPI() (map[string]interface{}, error) {
 		return nil, fmt.Errorf("Cannot include both Affinity and Locality")
 	}
 
-	// affinity takes precendence over locality regardless
+	// affinity takes precedence over locality regardless
 	if len(input.Affinity) > 0 {
 		result["affinity"] = input.Affinity
 	} else {
@@ -555,7 +643,7 @@ func (c *InstancesClient) ListTags(ctx context.Context, input *ListTagsInput) (m
 		return nil, pkgerrors.Wrap(err, "unable decode list machine tags response")
 	}
 
-	_, tags := tagsExtractMeta(result)
+	_, tags := TagsExtractMeta(result)
 	return tags, nil
 }
 
@@ -854,8 +942,30 @@ func (c *InstancesClient) GetNIC(ctx context.Context, input *GetNICInput) (*NIC,
 }
 
 type AddNICInput struct {
-	InstanceID string `json:"-"`
-	Network    string `json:"network"`
+	InstanceID    string
+	Network       string
+	NetworkObject NetworkObject
+}
+
+// toAPI is used to build up the JSON Object to send to the API gateway.  It
+// also will resolve the scenario where a user provides both a NetworkObject
+// and a Network. If both are provided, NetworkObject wins.
+func (input AddNICInput) toAPI() map[string]interface{} {
+	result := map[string]interface{}{}
+
+	var network NetworkObject
+
+	if input.NetworkObject.IPv4UUID != "" {
+		network = input.NetworkObject
+	} else {
+		network = NetworkObject{
+			IPv4UUID: input.Network,
+		}
+	}
+
+	result["network"] = network
+
+	return result
 }
 
 // AddNIC asynchronously adds a NIC to a given instance.  If a NIC for a given
@@ -868,7 +978,7 @@ func (c *InstancesClient) AddNIC(ctx context.Context, input *AddNICInput) (*NIC,
 	reqInputs := client.RequestInput{
 		Method: http.MethodPost,
 		Path:   fullPath,
-		Body:   input,
+		Body:   input.toAPI(),
 	}
 	response, err := c.client.ExecuteRequestRaw(ctx, reqInputs)
 	if err != nil {
@@ -1010,15 +1120,67 @@ func (c *InstancesClient) Reboot(ctx context.Context, input *RebootInstanceInput
 	return nil
 }
 
+type EnableDeletionProtectionInput struct {
+	InstanceID string
+}
+
+func (c *InstancesClient) EnableDeletionProtection(ctx context.Context, input *EnableDeletionProtectionInput) error {
+	fullPath := path.Join("/", c.client.AccountName, "machines", input.InstanceID)
+
+	params := &url.Values{}
+	params.Set("action", "enable_deletion_protection")
+
+	reqInputs := client.RequestInput{
+		Method: http.MethodPost,
+		Path:   fullPath,
+		Query:  params,
+	}
+	respReader, err := c.client.ExecuteRequestURIParams(ctx, reqInputs)
+	if respReader != nil {
+		defer respReader.Close()
+	}
+	if err != nil {
+		return pkgerrors.Wrap(err, "unable to enable deletion protection")
+	}
+
+	return nil
+}
+
+type DisableDeletionProtectionInput struct {
+	InstanceID string
+}
+
+func (c *InstancesClient) DisableDeletionProtection(ctx context.Context, input *DisableDeletionProtectionInput) error {
+	fullPath := path.Join("/", c.client.AccountName, "machines", input.InstanceID)
+
+	params := &url.Values{}
+	params.Set("action", "disable_deletion_protection")
+
+	reqInputs := client.RequestInput{
+		Method: http.MethodPost,
+		Path:   fullPath,
+		Query:  params,
+	}
+	respReader, err := c.client.ExecuteRequestURIParams(ctx, reqInputs)
+	if respReader != nil {
+		defer respReader.Close()
+	}
+	if err != nil {
+		return pkgerrors.Wrap(err, "unable to disable deletion protection")
+	}
+
+	return nil
+}
+
 var reservedInstanceCNSTags = map[string]struct{}{
 	CNSTagDisable:    {},
 	CNSTagReversePTR: {},
 	CNSTagServices:   {},
 }
 
-// tagsExtractMeta() extracts all of the misc parameters from Tags and returns a
+// TagsExtractMeta extracts all of the misc parameters from Tags and returns a
 // clean CNS and Tags struct.
-func tagsExtractMeta(tags map[string]interface{}) (InstanceCNS, map[string]interface{}) {
+func TagsExtractMeta(tags map[string]interface{}) (InstanceCNS, map[string]interface{}) {
 	nativeCNS := InstanceCNS{}
 	nativeTags := make(map[string]interface{}, len(tags))
 	for k, raw := range tags {
@@ -1047,7 +1209,7 @@ func tagsExtractMeta(tags map[string]interface{}) (InstanceCNS, map[string]inter
 // format.
 func (api *_Instance) toNative() (*Instance, error) {
 	m := Instance(api.Instance)
-	m.CNS, m.Tags = tagsExtractMeta(api.Tags)
+	m.CNS, m.Tags = TagsExtractMeta(api.Tags)
 	return &m, nil
 }
 
