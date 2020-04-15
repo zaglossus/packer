@@ -19,7 +19,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/Telmate/proxmox-api-go v0.0.0-20200225212220-a29566462efd
-	github.com/abdullin/seq v0.0.0-20160510034733-d5467c17e7af // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190418113227-25233c783f4e
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20170113022742-e6dbea820a9f
 	github.com/antchfx/htmlquery v1.0.0 // indirect
@@ -42,24 +41,19 @@ require (
 	github.com/digitalocean/godo v1.11.1
 	github.com/dnaeon/go-vcr v1.0.0 // indirect
 	github.com/docker/docker v0.0.0-20180422163414-57142e89befe // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dylanmei/iso8601 v0.1.0 // indirect
 	github.com/dylanmei/winrmtest v0.0.0-20170819153634-c2fbb09e6c08
 	github.com/exoscale/egoscale v0.18.1
 	github.com/fatih/camelcase v1.0.0
 	github.com/fatih/structtag v1.0.0
-	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-ini/ini v1.25.4
 	github.com/go-ole/go-ole v1.2.4 // indirect
-	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gocolly/colly v1.2.0
 	github.com/gofrs/flock v0.7.1
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
-	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/google/go-cmp v0.3.1
-	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/shlex v0.0.0-20150127133951-6f45313302b9
 	github.com/google/uuid v1.1.1
 	github.com/gophercloud/gophercloud v0.2.0
@@ -82,9 +76,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2
 	github.com/hashicorp/go-version v1.2.0
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
-	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.3.0
-	github.com/hashicorp/serf v0.8.2 // indirect
 	github.com/hashicorp/vault v1.1.0
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 	github.com/hetznercloud/hcloud-go v1.15.1
@@ -92,12 +84,10 @@ require (
 	github.com/jdcloud-api/jdcloud-sdk-go v1.9.1-0.20190605102154-3d81a50ca961
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869
 	github.com/joyent/triton-go v1.7.1-0.20200415201553-aa72615bac48
-	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/jtolds/gls v4.2.1+incompatible // indirect
 	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/klauspost/crc32 v0.0.0-20160114101742-999f3125931f // indirect
 	github.com/klauspost/pgzip v1.2.1
 	github.com/linode/linodego v0.7.1
 	github.com/masterzen/azure-sdk-for-go v0.0.0-20161014135628-ee4f0065d00c // indirect
@@ -114,8 +104,6 @@ require (
 	github.com/mitchellh/panicwrap v0.0.0-20170106182340-fce601fe5557
 	github.com/mitchellh/prefixedio v0.0.0-20151214002211-6e6954073784
 	github.com/mitchellh/reflectwalk v1.0.0
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/moul/anonuuid v0.0.0-20160222162117-609b752a95ef // indirect
 	github.com/moul/gotty-client v0.0.0-20180327180212-b26a57ebc215 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
@@ -131,7 +119,6 @@ require (
 	github.com/renstrom/fuzzysearch v0.0.0-20160331204855-2d205ac6ec17 // indirect
 	github.com/ryanuber/go-glob v0.0.0-20170128012129-256dc444b735 // indirect
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/scaleway/scaleway-cli v0.0.0-20180921094345-7b12c9699d70
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
@@ -143,7 +130,6 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go v3.0.155+incompatible
 	github.com/ucloud/ucloud-sdk-go v0.12.0
 	github.com/ufilesdk-dev/ufile-gosdk v0.0.0-20190830075812-b4dbc4ef43a6
-	github.com/ugorji/go v1.1.7 // indirect
 	github.com/ugorji/go/codec v1.1.7
 	github.com/ulikunitz/xz v0.5.5
 	github.com/vmware/govmomi v0.21.0
@@ -167,10 +153,8 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20200325114520-5b2d0af7952b // indirect
 	google.golang.org/grpc v1.28.0
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/jarcoal/httpmock.v1 v1.0.0-20181117152235-275e9df93516 // indirect
-	gopkg.in/resty.v1 v1.12.0 // indirect
 )
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
