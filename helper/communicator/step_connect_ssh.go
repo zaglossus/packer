@@ -26,14 +26,66 @@ import (
 // In general, you should use StepConnect.
 type StepConnectSSH struct {
 	// All the fields below are documented on StepConnect
-	Config    *Config
-	Host      func(multistep.StateBag) (string, error)
-	SSHConfig func(multistep.StateBag) (*gossh.ClientConfig, error)
-	SSHPort   func(multistep.StateBag) (int, error)
+	Config       *Config
+	Host         func(multistep.StateBag) (string, error)
+	SSHConfig    func(multistep.StateBag) (*gossh.ClientConfig, error)
+	SSHPort      func(multistep.StateBag) (int, error)
+	debugKeyPath string
+}
+
+func (s *StepConnectSSH) PrintDebugInformation(debugConnection bool) {
+	if !debugConnection {
+		return
+	}
+	ui.Message("Flag --debug-connection is set; printing debug information:")
+	// Print username and password to help with debugging.
+	ui.Message(fmt.Sprintf("[Connection] Trying to connect with SSH to: %s@%s", s.Config.SSHUsername, address))
+	ui.Message(fmt.Sprintf("(debug-connection) Password: %s", s.Comm.SSHPassword))
+
+	if s.Config.SSHProxyHost != "" {
+		ui.Message(fmt.Sprintf("[Connection] Using proxy: %s:%s@%s:%d",
+			s.Config.SSHProxyUsername, s.Config.SSHProxyPassword,
+			s.Config.SSHProxyHost, s.Config.SSHProxyPort))
+	}
+
+	if s.Config.SSHAgentAuth {
+		ui.Message(fmt.Sprintf("[Connection] Using SSH Agent on: %s", os.Getenv("SSH_AUTH_SOCK")))
+	}
+
+	if s.Config.SSHPrivateKeyFile != "" {
+		ui.Message(fmt.Sprintf("[Connection] Using SSH private key: %s", s.Config.SSHBastionPrivateKeyFile))
+	} else if s.Config.SSHPrivateKey {
+		// We generated the key and are keeping it in memory
+		// output the private key to the working directory.
+		debugKeyPath := fmt.Sprintf("debug_key_%s", os.Getenv("PACKER_RUN_UUID"))
+		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", debugKeyPath))
+		f, err := os.Create(debugKeyPath)
+		if err != nil {
+			ui.Message(fmt.Sprintf("Error saving debug key: %s", err))
+		}
+		s.debugKeyPath = debugKeyPath
+		defer f.Close()
+
+		// Write the key out
+		if _, err := f.Write(s.Config.SSHPrivateKey); err != nil {
+			ui.Message(fmt.Sprintf("Error saving debug key: %s", err))
+		}
+
+		// Chmod it so that it is SSH ready
+		if runtime.GOOS != "windows" {
+			if err := f.Chmod(0600); err != nil {
+				ui.Message(fmt.Sprintf("(debug-connection) Error setting permissions of debug key: %s", err))
+			}
+
+		}
+
+	}
 }
 
 func (s *StepConnectSSH) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packer.Ui)
+	debugConnection := state.Get("debug_connection").(bool)
+	s.PrintDebugInformation(debugConnection)
 
 	var comm packer.Communicator
 	var err error
@@ -48,6 +100,7 @@ func (s *StepConnectSSH) Run(ctx context.Context, state multistep.StateBag) mult
 	}()
 
 	log.Printf("[INFO] Waiting for SSH, up to timeout: %s", s.Config.SSHTimeout)
+
 	timeout := time.After(s.Config.SSHTimeout)
 	for {
 		// Wait for either SSH to become available, a timeout to occur,
@@ -81,6 +134,13 @@ func (s *StepConnectSSH) Run(ctx context.Context, state multistep.StateBag) mult
 }
 
 func (s *StepConnectSSH) Cleanup(multistep.StateBag) {
+	// Remove the physical key if we're debugging.
+	if s.debugKeyPath != "" {
+		if err := os.Remove(s.debugKeyPath); err != nil {
+			ui.Error(fmt.Sprintf(
+				"Error removing debug key '%s': %s", s.debugKeyPath, err))
+		}
+	}
 }
 
 func (s *StepConnectSSH) waitForSSH(state multistep.StateBag, ctx context.Context) (packer.Communicator, error) {

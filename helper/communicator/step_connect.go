@@ -104,6 +104,37 @@ func (s *StepConnect) Run(ctx context.Context, state multistep.StateBag) multist
 	} else {
 		log.Printf("[DEBUG] Unable to get address during connection step: %s", err)
 	}
+	if s.DebugConnection {
+		// Print username and password to help with debugging.
+		ui.Message(fmt.Sprintf("Password (since showing connection info is enabled): %s", s.Comm.WinRMPassword))
+
+		// If we're in debug mode, output the private key to the working
+		// directory.
+		if s.Debug {
+			ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
+			f, err := os.Create(s.DebugKeyPath)
+			if err != nil {
+				state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
+				return multistep.ActionHalt
+			}
+			defer f.Close()
+
+			// Write the key out
+			if _, err := f.Write([]byte(*keyResp.KeyMaterial)); err != nil {
+				state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
+				return multistep.ActionHalt
+			}
+
+			// Chmod it so that it is SSH ready
+			if runtime.GOOS != "windows" {
+				if err := f.Chmod(0600); err != nil {
+					state.Put("error", fmt.Errorf("Error setting permissions of debug key: %s", err))
+					return multistep.ActionHalt
+				}
+			}
+		}
+
+	}
 
 	s.substep = step
 	action := s.substep.Run(ctx, state)

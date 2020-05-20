@@ -33,6 +33,55 @@ type StepConnectWinRM struct {
 	WinRMPort   func(multistep.StateBag) (int, error)
 }
 
+func (s *StepConnectSSH) PrintDebugInformation(debugConnection bool) {
+	if !debugConnection {
+		return
+	}
+	ui.Message("Flag --debug-connection is set; printing debug information:")
+	// Print username and password to help with debugging.
+	ui.Message(fmt.Sprintf("[Connection] Trying to connect with SSH to: %s@%s", s.Config.SSHUsername, address))
+	ui.Message(fmt.Sprintf("(debug-connection) Password: %s", s.Comm.SSHPassword))
+
+	if s.Config.SSHProxyHost != "" {
+		ui.Message(fmt.Sprintf("[Connection] Using proxy: %s:%s@%s:%d",
+			s.Config.SSHProxyUsername, s.Config.SSHProxyPassword,
+			s.Config.SSHProxyHost, s.Config.SSHProxyPort))
+	}
+
+	if s.Config.SSHAgentAuth {
+		ui.Message(fmt.Sprintf("[Connection] Using SSH Agent on: %s", os.Getenv("SSH_AUTH_SOCK")))
+	}
+
+	if s.Config.SSHPrivateKeyFile != "" {
+		ui.Message(fmt.Sprintf("[Connection] Using SSH private key: %s", s.Config.SSHBastionPrivateKeyFile))
+	} else if s.Config.SSHPrivateKey {
+		// We generated the key and are keeping it in memory
+		// output the private key to the working directory.
+		debugKeyPath := fmt.Sprintf("debug_key_%s", os.Getenv("PACKER_RUN_UUID"))
+		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", debugKeyPath))
+		f, err := os.Create(debugKeyPath)
+		if err != nil {
+			ui.Message(fmt.Sprintf("Error saving debug key: %s", err))
+		}
+		s.debugKeyPath = debugKeyPath
+		defer f.Close()
+
+		// Write the key out
+		if _, err := f.Write(s.Config.SSHPrivateKey); err != nil {
+			ui.Message(fmt.Sprintf("Error saving debug key: %s", err))
+		}
+
+		// Chmod it so that it is SSH ready
+		if runtime.GOOS != "windows" {
+			if err := f.Chmod(0600); err != nil {
+				ui.Message(fmt.Sprintf("(debug-connection) Error setting permissions of debug key: %s", err))
+			}
+
+		}
+
+	}
+}
+
 func (s *StepConnectWinRM) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packer.Ui)
 
