@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"time"
@@ -340,11 +341,12 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 
 		for _, key := range privateKeys {
 			signer, err := ssh.ParsePrivateKey(key) //ParsePKCS1PrivateKey
+			log.Printf("Megan signer is %#v", signer)
 			if err != nil {
 				return nil, fmt.Errorf("Error on parsing SSH private key: %s", err)
 			}
-			algorithmSigner := &AlgorithmSigner{signer}
-			algorithmSigner = SignWithAlgorithm()
+			algorithmSigner := &ssh.AlgorithmSigner{signer}
+			algorithmSigner = SignWithAlgorithm(ssh.SigAlgoRSASHA2256)
 			sshConfig.Auth = append(sshConfig.Auth, ssh.PublicKeys(signer))
 		}
 
@@ -357,6 +359,15 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 		return sshConfig, nil
 	}
 }
+
+// func ParsePrivateKey(pemBytes []byte) (Signer, error) {
+// 	key, err := ParseRawPrivateKey(pemBytes)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return NewSignerFromKey(key)
+// }
 
 // Port returns the port that will be used for access based on config.
 func (c *Config) Port() int {
