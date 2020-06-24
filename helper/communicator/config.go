@@ -6,6 +6,7 @@ package communicator
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -340,14 +341,18 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 		}
 
 		for _, key := range privateKeys {
-			signer, err := ssh.ParsePrivateKey(key) //ParsePKCS1PrivateKey
+			signer, err := ssh.ParsePrivateKey(key) //ParsePKCS1PrivateKey // ssh.Signer
 			log.Printf("Megan signer is %#v", signer)
 			if err != nil {
 				return nil, fmt.Errorf("Error on parsing SSH private key: %s", err)
 			}
-			algorithmSigner := &ssh.AlgorithmSigner{signer}
-			algorithmSigner = SignWithAlgorithm(ssh.SigAlgoRSASHA2256)
-			sshConfig.Auth = append(sshConfig.Auth, ssh.PublicKeys(signer))
+			// Hardcode to rsa-256 for now.
+			sshAlgoSigner, err := NewAlgorithmSignerFromSigner(signer, ssh.SigAlgoRSASHA2256)
+			if err != nil {
+				return nil, err
+			}
+
+			sshConfig.Auth = append(sshConfig.Auth, ssh.PublicKeys(sshAlgoSigner))
 		}
 
 		if c.SSHPassword != "" {
@@ -360,6 +365,40 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 	}
 }
 
+// Copied from https://github.com/golang/go/issues/36261#issuecomment-573449605
+// This implements the crypto AlgorithmSigner interface.
+type sshAlgorithmSigner struct {
+	algorithm string
+	signer    ssh.AlgorithmSigner
+}
+
+func (s *sshAlgorithmSigner) PublicKey() ssh.PublicKey {
+	return s.signer.PublicKey()
+}
+
+func (s *sshAlgorithmSigner) Public() ssh.PublicKey {
+	return s.signer.PublicKey()
+}
+
+func (s *sshAlgorithmSigner) Sign(rand io.Reader, data []byte) (*ssh.Signature, error) {
+	return s.signer.SignWithAlgorithm(rand, data, s.algorithm)
+}
+
+func NewAlgorithmSignerFromSigner(signer ssh.Signer, algorithm string) (ssh.Signer, error) {
+	algorithmSigner, ok := signer.(ssh.AlgorithmSigner)
+	if !ok {
+		return nil, errors.New("unable to cast to ssh.AlgorithmSigner")
+	}
+	s := sshAlgorithmSigner{
+		signer:    algorithmSigner,
+		algorithm: algorithm,
+	}
+	return &s, nil
+}
+
+// End Copy
+
+// // Copied from crypto/ssh
 // func ParsePrivateKey(pemBytes []byte) (Signer, error) {
 // 	key, err := ParseRawPrivateKey(pemBytes)
 // 	if err != nil {
@@ -368,6 +407,23 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 
 // 	return NewSignerFromKey(key)
 // }
+
+// // NewSignerFromKey takes an *rsa.PrivateKey, *dsa.PrivateKey,
+// // *ecdsa.PrivateKey or any other crypto.Signer and returns a
+// // corresponding Signer instance. ECDSA keys must use P-256, P-384 or
+// // P-521. DSA keys must use parameter size L1024N160.
+// func NewSignerFromKey(key interface{}) (Signer, error) {
+// 	switch key := key.(type) {
+// 	case crypto.Signer:
+// 		return NewSignerFromSigner(key)
+// 	case *dsa.PrivateKey:
+// 		return newDSAPrivateKey(key)
+// 	default:
+// 		return nil, fmt.Errorf("ssh: unsupported key type %T", key)
+// 	}
+// }
+
+// End copy from crypto/ssh
 
 // Port returns the port that will be used for access based on config.
 func (c *Config) Port() int {
