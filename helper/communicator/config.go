@@ -348,6 +348,7 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 			}
 			// Hardcode to rsa-256 for now.
 			sshAlgoSigner, err := NewAlgorithmSignerFromSigner(signer, ssh.SigAlgoRSASHA2256)
+			log.Printf("Megan sshAlgoSigner is %#v", sshAlgoSigner)
 			if err != nil {
 				return nil, err
 			}
@@ -365,8 +366,9 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 	}
 }
 
-// Copied from https://github.com/golang/go/issues/36261#issuecomment-573449605
-// This implements the crypto AlgorithmSigner interface.
+// Adapted from https://github.com/golang/go/issues/36261#issuecomment-573449605
+// This implements the crypto AlgorithmSigner interface, allowing us to
+// forcibly overwrite the rsa algorithm being used.
 type sshAlgorithmSigner struct {
 	algorithm string
 	signer    ssh.AlgorithmSigner
@@ -395,35 +397,6 @@ func NewAlgorithmSignerFromSigner(signer ssh.Signer, algorithm string) (ssh.Sign
 	}
 	return &s, nil
 }
-
-// End Copy
-
-// // Copied from crypto/ssh
-// func ParsePrivateKey(pemBytes []byte) (Signer, error) {
-// 	key, err := ParseRawPrivateKey(pemBytes)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return NewSignerFromKey(key)
-// }
-
-// // NewSignerFromKey takes an *rsa.PrivateKey, *dsa.PrivateKey,
-// // *ecdsa.PrivateKey or any other crypto.Signer and returns a
-// // corresponding Signer instance. ECDSA keys must use P-256, P-384 or
-// // P-521. DSA keys must use parameter size L1024N160.
-// func NewSignerFromKey(key interface{}) (Signer, error) {
-// 	switch key := key.(type) {
-// 	case crypto.Signer:
-// 		return NewSignerFromSigner(key)
-// 	case *dsa.PrivateKey:
-// 		return newDSAPrivateKey(key)
-// 	default:
-// 		return nil, fmt.Errorf("ssh: unsupported key type %T", key)
-// 	}
-// }
-
-// End copy from crypto/ssh
 
 // Port returns the port that will be used for access based on config.
 func (c *Config) Port() int {
