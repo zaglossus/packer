@@ -158,5 +158,6 @@ require (
 )
 
 replace github.com/gofrs/flock => github.com/azr/flock v0.0.0-20190823144736-958d66434653
+replace golang.org/x/crypto => /Users/mmarsh/go/src/golang.org/x/crypto
 
 go 1.13

@@ -109,17 +109,6 @@ type SSH struct {
 	// * "aes128-cbc"
 	// * "3des-cbc"
 	SSHCiphers []string `mapstructure:"ssh_ciphers"`
-	// This overrides the list of key algorithms supported by default by golang.
-	// Valid options for host key algorithms include:
-	//  * "ssh-rsa"
-	//  * "ssh-dss"
-	//  * "ecdsa-sha2-nistp256"
-	//  * "sk-ecdsa-sha2-nistp256@openssh.com"
-	//  * "ecdsa-sha2-nistp384"
-	//  * "ecdsa-sha2-nistp521"
-	//  * "ssh-ed25519"
-	//  * "sk-ssh-ed25519@openssh.com"
-	SSHHostKeyAlgorithms []string `mapstructure:"ssh_host_key_algorithms"`
 	// If true, Packer will attempt to remove its temporary key from
 	// `~/.ssh/authorized_keys` and `/root/.ssh/authorized_keys`. This is a
 	// mostly cosmetic option, since Packer will delete the temporary private
@@ -303,9 +292,6 @@ func (c *Config) SSHConfigFunc() func(multistep.StateBag) (*ssh.ClientConfig, er
 		// Set user overrides for ciphers and algorithms.
 		if len(c.SSHCiphers) != 0 {
 			sshConfig.Config.Ciphers = c.SSHCiphers
-		}
-		if len(c.SSHHostKeyAlgorithms) != 0 {
-			sshConfig.HostKeyAlgorithms = c.SSHHostKeyAlgorithms
 		}
 
 		if c.SSHAgentAuth {
