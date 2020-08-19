@@ -191,6 +191,17 @@ github.com/digitalocean/go-qemu/qmp
 github.com/digitalocean/godo
 # github.com/dimchansky/utfbom v1.1.0
 github.com/dimchansky/utfbom
+# github.com/diskfs/go-diskfs v1.1.1
+github.com/diskfs/go-diskfs
+github.com/diskfs/go-diskfs/disk
+github.com/diskfs/go-diskfs/filesystem
+github.com/diskfs/go-diskfs/filesystem/fat32
+github.com/diskfs/go-diskfs/filesystem/iso9660
+github.com/diskfs/go-diskfs/partition
+github.com/diskfs/go-diskfs/partition/gpt
+github.com/diskfs/go-diskfs/partition/mbr
+github.com/diskfs/go-diskfs/partition/part
+github.com/diskfs/go-diskfs/util
 # github.com/docker/docker v0.0.0-20180422163414-57142e89befe
 github.com/docker/docker/pkg/namesgenerator
 # github.com/dustin/go-humanize v1.0.0
@@ -905,6 +916,8 @@ google.golang.org/protobuf/types/known/fieldmaskpb
 google.golang.org/protobuf/types/known/timestamppb
 google.golang.org/protobuf/types/known/wrapperspb
 google.golang.org/protobuf/types/pluginpb
+# gopkg.in/djherbis/times.v1 v1.2.0
+gopkg.in/djherbis/times.v1
 # gopkg.in/ini.v1 v1.42.0
 gopkg.in/ini.v1
 # gopkg.in/square/go-jose.v2 v2.3.1
