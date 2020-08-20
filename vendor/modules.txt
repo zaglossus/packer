@@ -191,7 +191,7 @@ github.com/digitalocean/go-qemu/qmp
 github.com/digitalocean/godo
 # github.com/dimchansky/utfbom v1.1.0
 github.com/dimchansky/utfbom
-# github.com/diskfs/go-diskfs v1.1.1
+# github.com/diskfs/go-diskfs v1.1.1 => /Users/mmarsh/Projects/go-diskfs
 github.com/diskfs/go-diskfs
 github.com/diskfs/go-diskfs/disk
 github.com/diskfs/go-diskfs/filesystem
