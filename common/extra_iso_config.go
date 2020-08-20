@@ -11,16 +11,19 @@ import (
 	"github.com/hashicorp/packer/template/interpolate"
 )
 
-// An iso (CD) containing custom files can be made available for your build. This is
-// most useful for unattended installs which need to be mounted on removable
+// An iso (CD) containing custom files can be made available for your build.
 //
-// By default, no iso will be attached. All files listed in this setting get
-// placed into the root directory of the CD and the CD is attached as the
+// By default, no extra CD will be attached. All files listed in this setting
+// get placed into the root directory of the CD and the CD is attached as the
 // second CD device.
 //
 // This config exists to work around modern operating systems that have no
-// way to mount CD disks, which was our previous go-to for adding files at
+// way to mount floppy disks, which was our previous go-to for adding files at
 // boot time.
+//
+// It may not work for all installers. For example, in debian the preseed file
+// needs to be remastered inside the installation iso, which is outside the
+// scope of this tool
 type CDConfig struct {
 	// A list of files to place onto a CD that is attached when the VM is
 	// booted. This can include either files or directories; any directories
