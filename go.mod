@@ -154,6 +154,5 @@ require (
 )
 
 replace github.com/gofrs/flock => github.com/azr/flock v0.0.0-20190823144736-958d66434653
-replace github.com/diskfs/go-diskfs => /Users/mmarsh/Projects/go-diskfs
 
 go 1.13
