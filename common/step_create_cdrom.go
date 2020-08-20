@@ -1,3 +1,4 @@
+// +build !windows
 package common
 
 import (
@@ -132,6 +133,9 @@ func (s *StepCreateCD) Add(fs filesystem.FileSystem, src string) error {
 		defer inputF.Close()
 
 		rw, err := fs.OpenFile(finfo.Name(), os.O_CREATE|os.O_RDWR)
+		if err != nil {
+			return fmt.Errorf("Error opening file for copy %s to CD", src)
+		}
 		nBytes, err := io.Copy(rw, inputF)
 		if err != nil {
 			return fmt.Errorf("Error copying %s to CD", src)
