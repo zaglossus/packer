@@ -136,6 +136,9 @@ func AddFile(fs filesystem.FileSystem, src string) error {
 			defer inputF.Close()
 
 			rw, err := fs.OpenFile(fi.Name(), os.O_CREATE|os.O_RDWR)
+			if err != nil {
+				return fmt.Errorf("Error opening file %s on CD", src)
+			}
 			nBytes, err := io.Copy(inputF, rw)
 			if err != nil {
 				return fmt.Errorf("Error copying %s to CD", src)
