@@ -1,5 +1,3 @@
-// +build !windows
-
 // Package diskfs implements methods for creating and manipulating disks and filesystems
 //
 // methods for creating and manipulating disks and filesystems, whether block devices
